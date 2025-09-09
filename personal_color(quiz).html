@@ -1,0 +1,189 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🌸 Personal Color Quiz 🌸</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      background: linear-gradient(135deg, #ffe4f0, #d0e7ff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .quiz-container {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 25px;
+      padding: 40px 30px;
+      max-width: 700px;
+      width: 90%;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      text-align: center;
+      position: relative;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    h1 {
+      color: #ff69b4;
+      margin-bottom: 15px;
+    }
+
+    .question {
+      font-size: 20px;
+      margin-bottom: 20px;
+      color: #555;
+    }
+
+    .answers {
+      text-align: left;
+      margin-bottom: 25px;
+    }
+
+    .answers label {
+      display: block;
+      margin: 8px 0;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    input[type="radio"] {
+      margin-right: 10px;
+      cursor: pointer;
+    }
+
+    .btn {
+      background: #ffb6c1;
+      border: none;
+      padding: 15px 35px;
+      font-size: 18px;
+      font-weight: bold;
+      color: white;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+      transition: transform 0.2s, background 0.2s;
+      margin-top: 10px;
+    }
+
+    .btn:hover {
+      transform: scale(1.05);
+      background: #ff69b4;
+    }
+
+    #result {
+      font-size: 22px;
+      font-weight: bold;
+      color: #ff69b4;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="quiz-container">
+    <h1>🌸 Personal Color Quiz 🌸</h1>
+    <div id="quiz-content"></div>
+    <button class="btn" id="next-btn">Next</button>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    // Questions array
+    const questions = [
+      {q: "1. What is your skin undertone?", options:["Warm (yellow/golden)","Cool (pink/blue)"], type: "undertone"},
+      {q: "2. What hair color describes you best?", options:["Light (blonde/light brown)","Dark (brown/black)"], type: "hair"},
+      {q: "3. What eye color describes you best?", options:["Light (blue/green/hazel)","Dark (brown/black)"], type: "eye"},
+      {q: "4. Which jewelry looks best on you?", options:["Gold","Silver"], type: "jewelry"},
+      {q: "5. Which color palette do you feel most comfortable wearing?", options:["Bright & warm","Soft & cool","Deep & warm","Bold & cool"], type: "palette"},
+      {q: "6. Which color makes you feel happiest?", options:["Yellow/Pink","Blue/Purple","Orange/Red","Black/White"], type: "colorFeeling"},
+      {q: "7. Your ideal accessory style?", options:["Delicate & cute","Simple & elegant","Bold & chunky","Classic & minimal"], type: "accessory"},
+      {q: "8. Which season do you feel most like?", options:["Spring","Summer","Autumn","Winter"], type: "seasonFeeling"},
+      {q: "9. What color clothes do you often choose?", options:["Pastels","Cool soft colors","Earth tones","Bold dark colors"], type: "clothesColor"},
+      {q: "10. What kind of makeup do you prefer?", options:["Bright & natural","Soft & light","Warm & deep","Bold & dramatic"], type: "makeup"},
+      {q: "11. What color nails do you like?", options:["Light pink/peach","Soft pastel","Terracotta/Beige","Red/Black"], type: "nails"},
+      {q: "12. Your favorite flower?", options:["Daisy/Tulip","Lavender/Rose","Sunflower/Marigold","Orchid/Peony"], type: "flower"},
+      {q: "13. Which pattern do you like most?", options:["Floral","Soft geometric","Autumn leaves","Bold stripes"], type: "pattern"},
+      {q: "14. Your preferred bag color?", options:["Pastel pink/yellow","Cool blue/purple","Brown/Beige","Black/Deep colors"], type: "bagColor"},
+      {q: "15. What feeling do you want your outfit to give?", options:["Cheerful & bright","Soft & calm","Warm & cozy","Strong & striking"], type: "feeling"}
+    ];
+
+    let currentQuestion = 0;
+    let answers = {};
+
+    const quizContent = document.getElementById("quiz-content");
+    const nextBtn = document.getElementById("next-btn");
+    const resultDiv = document.getElementById("result");
+
+    function showQuestion() {
+      const q = questions[currentQuestion];
+      let html = `<div class="question">${q.q}</div><div class="answers">`;
+      q.options.forEach((opt, index)=>{
+        html += `<label><input type="radio" name="answer" value="${opt}"> ${opt}</label>`;
+      });
+      html += `</div>`;
+      quizContent.innerHTML = html;
+
+      // Change button text if last question
+      nextBtn.innerText = (currentQuestion === questions.length -1) ? "See My Personal Color" : "Next";
+    }
+
+    nextBtn.addEventListener("click", ()=>{
+      const selected = document.querySelector('input[name="answer"]:checked');
+      if(!selected) {
+        alert("Please choose an answer!");
+        return;
+      }
+
+      const type = questions[currentQuestion].type;
+      answers[type] = selected.value;
+
+      currentQuestion++;
+      if(currentQuestion < questions.length){
+        showQuestion();
+      } else {
+        calculateResult();
+      }
+    });
+
+    function calculateResult() {
+      quizContent.style.display = "none";
+      nextBtn.style.display = "none";
+
+      let warmCount = 0;
+      let coolCount = 0;
+
+      // Simple scoring based on key answers
+      if(answers.undertone==="Warm (yellow/golden)") warmCount++; else coolCount++;
+      if(answers.hair.includes("Light") && answers.undertone==="Warm (yellow/golden)") warmCount++; else coolCount++;
+      if(answers.eye.includes("Light") && answers.undertone==="Warm (yellow/golden)") warmCount++; else coolCount++;
+      if(answers.jewelry==="Gold") warmCount++; else coolCount++;
+      if(["Bright & warm","Deep & warm"].includes(answers.palette)) warmCount++; else coolCount++;
+
+      let finalResult = "";
+      if(warmCount > coolCount){
+        if(answers.hair.includes("Light")) finalResult = "🌸 Spring – Warm and Bright!";
+        else finalResult = "🍂 Autumn – Warm and Deep!";
+      } else if(coolCount > warmCount){
+        if(answers.hair.includes("Light")) finalResult = "❄️ Summer – Cool and Soft!";
+        else finalResult = "🌌 Winter – Cool and Bold!";
+      } else {
+        finalResult = "✨ You have a balanced or neutral tone!";
+      }
+
+      resultDiv.innerHTML = `Your personal color type is:<br>${finalResult}`;
+    }
+
+    // Initialize first question
+    showQuestion();
+  </script>
+</body>
+</html>
